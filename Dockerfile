@@ -11,5 +11,5 @@ COPY . .
 # Create uploads folder
 RUN mkdir -p uploads
 
-EXPOSE 3000
+EXPOSE 7860
 CMD ["node", "server.js"]
