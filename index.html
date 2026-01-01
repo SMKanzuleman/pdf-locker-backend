@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Locker - GitHub Pages</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
+        <h1 class="text-3xl font-bold mb-4 text-center text-blue-400">Secure PDF</h1>
+
+        <div id="uploadForm">
+            <div class="mb-4">
+                <label class="block mb-2 text-sm">PDF File Select Karein</label>
+                <input type="file" id="pdfFile" accept=".pdf"
+                    class="w-full text-sm text-gray-400 file:bg-blue-600 file:text-white file:px-4 file:py-2 file:rounded-lg file:border-0 hover:file:bg-blue-700 cursor-pointer" />
+            </div>
+
+            <div class="mb-6">
+                <label class="block mb-2 text-sm">Password Rakhein</label>
+                <input type="password" id="password"
+                    class="w-full p-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500" />
+            </div>
+
+            <button onclick="lockPDF()" id="btn"
+                class="w-full bg-blue-600 p-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                Lock & Download
+            </button>
+        </div>
+
+        <p id="status" class="mt-4 text-center text-sm text-gray-400"></p>
+    </div>
+
+    <script>
+        async function lockPDF() {
+            const fileInput = document.getElementById('pdfFile');
+            const passwordInput = document.getElementById('password');
+            const btn = document.getElementById('btn');
+            const status = document.getElementById('status');
+
+            if (!fileInput.files[0] || !passwordInput.value) {
+                return alert("File aur password dono zaroori hain!");
+            }
+
+            // UI Changes
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            status.innerText = "Server response ka wait karein...";
+
+            const formData = new FormData();
+            formData.append('pdfFile', fileInput.files[0]);
+            formData.append('password', passwordInput.value);
+
+            try {
+                // APNA RENDER URL YAHAN DALEIN
+                const response = await fetch('https://your-app-name.onrender.com/lock', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "locked_" + fileInput.files[0].name;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    status.innerText = "Success! File download ho rahi hai.";
+                } else {
+                    status.innerText = "Error: Server ne request reject kar di.";
+                }
+            } catch (err) {
+                status.innerText = "Error: Connection fail ho gaya.";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Lock & Download";
+            }
+        }
+    </script>
+</body>
+
+</html>
